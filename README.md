@@ -47,10 +47,13 @@
 ```
 
 4. Acesse a aplicação no navegador:
+```bash
    http://127.0.0.1:5000
+```
 
 ## Estrutura do Projeto
 
+```
 BinDecConverter/
 │
 ├── app.py               # Código principal do Flask
@@ -60,6 +63,7 @@ BinDecConverter/
 │   ├── audio.mp3        # Áudio do Easter Egg
 │   └── audio2.mp3       # Áudio interativo para tabelas finais
 └── README.md            # Este arquivo
+```
 
 ## Licença
 
