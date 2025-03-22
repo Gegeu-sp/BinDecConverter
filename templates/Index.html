@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor Decimal e Binário</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f6f9;
+            color: #333;
+            font-family: 'Arial', sans-serif;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #007bff;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        .form-control {
+            margin-bottom: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            color: #333;
+        }
+        .btn-primary {
+            width: 100%;
+            background-color: #007bff;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .resultado {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .erro {
+            color: #dc3545;
+            text-align: center;
+        }
+        .passos-calculo {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        .explicacao {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #555;
+        }
+        audio {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Conversor Decimal e Binário</h1>
+
+        <!-- Abas -->
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link {% if aba_ativa == 'decimal_para_binario' %}active{% endif %}" 
+                        id="decimal-tab" data-bs-toggle="tab" data-bs-target="#decimal" type="button" role="tab" 
+                        aria-controls="decimal" aria-selected="true">Decimal para Binário</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link {% if aba_ativa == 'binario_para_decimal' %}active{% endif %}" 
+                        id="binario-tab" data-bs-toggle="tab" data-bs-target="#binario" type="button" role="tab" 
+                        aria-controls="binario" aria-selected="false">Binário para Decimal</button>
+            </li>
+        </ul>
+
+        <!-- Conteúdo das Abas -->
+        <div class="tab-content" id="myTabContent">
+            <!-- Aba Decimal para Binário -->
+            <div class="tab-pane fade {% if aba_ativa == 'decimal_para_binario' %}show active{% endif %}" 
+                 id="decimal" role="tabpanel" aria-labelledby="decimal-tab">
+                <form method="POST">
+                    <input type="hidden" name="aba_ativa" value="decimal_para_binario">
+                    <div class="mb-3">
+                        <label for="decimal" class="form-label">Digite um número decimal positivo:</label>
+                        <input type="text" class="form-control" id="decimal" name="decimal" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Converter</button>
+                </form>
+
+                {% if aba_ativa == 'decimal_para_binario' %}
+                {% if erro %}
+                <p class="erro">{{ erro }}</p>
+                {% endif %}
+
+                {% if resultado_manual %}
+                <div class="resultado">
+                    <h5>Método Manual:</h5>
+                    <p>Você digitou o número <strong>{{ request.form['decimal'] }}</strong>. Em binário, ele é: <strong>{{ resultado_manual }}</strong>.</p>
+                </div>
+                {% endif %}
+
+                {% if passos_calculo %}
+                <div class="passos-calculo">
+                    <h5>Divisões em Cascata:</h5>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Número</th>
+                                <th>Divisão por 2</th>
+                                <th>Resto</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for numero, resto in passos_calculo %}
+                            <tr>
+                                <td>{{ numero }}</td>
+                                <td>{{ numero // 2 }}</td>
+                                <td>{{ resto }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <p class="explicacao">Os restos são lidos de baixo para cima, resultando no número binário: <strong>{{ resultado_manual }}</strong>.</p>
+                </div>
+                {% endif %}
+
+                {% if posicoes_potencia %}
+                <div class="passos-calculo">
+                    <h5>Tabela Final:</h5>
+                    <table id="tabela-final-decimal" onmouseover="tocarAudio()">
+                        <thead>
+                            <tr>
+                                {% for _, _, bit in posicoes_potencia %}
+                                <th>{{ bit }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                {% for _, valor, _ in posicoes_potencia %}
+                                <td>{{ valor }}</td>
+                                {% endfor %}
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p class="explicacao">Cada bit do número binário corresponde ao valor abaixo dele.</p>
+                </div>
+                {% endif %}
+                {% endif %}
+            </div>
+
+            <!-- Aba Binário para Decimal -->
+            <div class="tab-pane fade {% if aba_ativa == 'binario_para_decimal' %}show active{% endif %}" 
+                 id="binario" role="tabpanel" aria-labelledby="binario-tab">
+                <form method="POST">
+                    <input type="hidden" name="aba_ativa" value="binario_para_decimal">
+                    <div class="mb-3">
+                        <label for="binario" class="form-label">Digite um número binário:</label>
+                        <input type="text" class="form-control" id="binario" name="binario" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Converter</button>
+                </form>
+
+                {% if aba_ativa == 'binario_para_decimal' %}
+                {% if erro %}
+                <p class="erro">{{ erro }}</p>
+                {% endif %}
+
+                {% if resultado_manual %}
+                <div class="resultado">
+                    <h5>Método Manual:</h5>
+                    <p>Você digitou o número binário <strong>{{ request.form['binario'] }}</strong>. Em decimal, ele é: <strong>{{ resultado_manual }}</strong>.</p>
+                </div>
+                {% endif %}
+
+                {% if soma_horizontal %}
+                <div class="passos-calculo">
+                    <h5>Soma Horizontal:</h5>
+                    <p><strong>{{ soma_horizontal }}</strong></p>
+                    <p class="explicacao">Aqui está a soma detalhada de cada bit multiplicado pelo valor da sua posição.</p>
+                </div>
+                {% endif %}
+
+                {% if posicoes_potencia %}
+                <div class="passos-calculo">
+                    <h5>Tabela Final:</h5>
+                    <table id="tabela-final-binario" onmouseover="tocarAudio()">
+                        <thead>
+                            <tr>
+                                {% for _, _, bit in posicoes_potencia %}
+                                <th>{{ bit }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                {% for _, valor, _ in posicoes_potencia %}
+                                <td>{{ valor }}</td>
+                                {% endfor %}
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p class="explicacao">Cada bit do número binário corresponde ao valor abaixo dele.</p>
+                </div>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Easter Egg Audio -->
+    {% if easter_egg %}
+    <audio id="easter-audio" autoplay>
+        <source src="{{ url_for('static', filename='audio.mp3') }}" type="audio/mpeg">
+        Seu navegador não suporta o elemento de áudio.
+    </audio>
+    {% endif %}
+
+    <!-- Áudio para Tabela Final -->
+    <audio id="audio-tabela" src="{{ url_for('static', filename='audio2.mp3') }}"></audio>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Função para tocar o áudio ao passar o mouse sobre a tabela final
+        function tocarAudio() {
+            const audio = document.getElementById('audio-tabela');
+            if (audio) {
+                audio.currentTime = 0; // Reinicia o áudio caso já esteja tocando
+                audio.play();
+            }
+        }
+    </script>
+</body>
+</html>
